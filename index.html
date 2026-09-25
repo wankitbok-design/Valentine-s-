@@ -13,7 +13,6 @@
       --secondary-color: #c9184a;
       --accent-color: #ffccd5;
       --radius: 24px;
-      --transition: all 0.15s ease-out;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,7 +76,7 @@
       font-weight: 700;
       border: none;
       cursor: pointer;
-      transition: var(--transition);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .btn-yes {
@@ -92,8 +91,9 @@
       color: #6c757d;
       border: 1px solid #dee2e6;
       position: absolute;
-      z-index: 999; /* Ensure it stays above everything while moving */
-      white-space: nowrap; /* Prevents text from breaking awkwardly */
+      z-index: 999;
+      white-space: nowrap;
+      transition: top 0.2s ease, left 0.2s ease;
     }
 
     .success-view {
@@ -104,19 +104,16 @@
 <body>
 
   <div class="container">
-    <!-- Main Quiz Panel -->
     <div id="quiz-view">
       <div class="heart-icon" id="emoji-state">🥺</div>
       <h1 id="question-text">Will you be my Valentine?</h1>
       
       <div class="button-group">
         <button class="btn btn-yes" id="yes-btn" onclick="celebrate()">Yes</button>
-        <!-- The runaway pleading button -->
-        <button class="btn btn-no" id="no-btn" onmouseover="fleeAndBeg()" onclick="fleeAndBeg()">No</button>
+        <button class="btn btn-no" id="no-btn">No</button>
       </div>
     </div>
 
-    <!-- Celebration Screen -->
     <div id="success-view" class="success-view">
       <div class="heart-icon">🥰🎉💖</div>
       <h1 style="color: var(--secondary-color);">Yay! Best Decision Ever!</h1>
@@ -127,13 +124,13 @@
   <script>
     let clickCount = 0;
     let yesScale = 1;
+    let isMoving = false; // Prevents the code from firing double triggers on touchscreens
 
-    // The text that will appear directly ON the escaping No button
     const beggingPhrases = [
       "No",
       "Wait, don't! 😭",
       "Are you sure? 😢",
-      "Plese think about it... 🙏",
+      "Please think about it... 🙏",
       "Pretty please?? ✨",
       "I'll buy you snacks! 🥺",
       "You're breaking my heart 💔",
@@ -142,40 +139,40 @@
       "Click the YES button! 👇"
     ];
 
-    // Set initial position cleanly relative to the container grid layout
-    window.onload = function() {
-      resetNoButtonPosition();
-    }
+    const noBtn = document.getElementById('no-btn');
+    const yesBtn = document.getElementById('yes-btn');
+    const emojiState = document.getElementById('emoji-state');
+    const questionText = document.getElementById('question-text');
 
-    function resetNoButtonPosition() {
-      const noBtn = document.getElementById('no-btn');
+    // Set stable initial relative positions
+    window.onload = function() {
       noBtn.style.left = "calc(50% + 30px)";
       noBtn.style.top = "calc(100% - 130px)";
     }
 
-    function fleeAndBeg() {
-      clickCount++;
-      
-      const noBtn = document.getElementById('no-btn');
-      const yesBtn = document.getElementById('yes-btn');
-      const emojiState = document.getElementById('emoji-state');
-      const questionText = document.getElementById('question-text');
+    function fleeAndBeg(e) {
+      // Stop double events from mobile taps dead in their tracks
+      if (isMoving) return;
+      isMoving = true;
+      setTimeout(() => { isMoving = false; }, 200);
 
-      // 1. Force text updates directly on the button instantly
+      clickCount++;
+
+      // 1. Instantly swap the phrase on the button text array
       const phraseIndex = clickCount % beggingPhrases.length;
       noBtn.innerText = beggingPhrases[phraseIndex];
 
-      // 2. Change main card elements to emphasize the begging
-      if (clickCount === 2) {
+      // 2. Modify heading text based on how persistent they are
+      if (clickCount >= 2 && clickCount < 5) {
         emojiState.innerText = "😭";
         questionText.innerText = "Wait, look what you're doing!";
-      } else if (clickCount === 5) {
+      } else if (clickCount >= 5) {
         emojiState.innerText = "🧎‍♂️💥";
         questionText.innerText = "Please stop avoiding me!";
       }
 
-      // 3. Teleport the button safely anywhere inside the browser window
-      const padding = 60;
+      // 3. Teleport the button safely to absolute window layout bounds
+      const padding = 70;
       const maxX = window.innerWidth - noBtn.offsetWidth - padding;
       const maxY = window.innerHeight - noBtn.offsetHeight - padding;
       
@@ -186,18 +183,23 @@
       noBtn.style.left = randomX + 'px';
       noBtn.style.top = randomY + 'px';
 
-      // 4. Scale up the "Yes" button so it becomes impossible to miss
-      yesScale += 0.3;
+      // 4. Boost the size of the "Yes" button
+      yesScale += 0.35;
       yesBtn.style.transform = `scale(${yesScale})`;
     }
+
+    // Attach listeners separately so they never double-fire
+    noBtn.addEventListener('mouseover', fleeAndBeg);
+    noBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      fleeAndBeg(e);
+    });
 
     function celebrate() {
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('success-view').style.display = 'block';
       document.body.style.backgroundColor = '#ffdde2';
-      
-      // Hide the runaway button permanently on success
-      document.getElementById('no-btn').style.display = 'none';
+      noBtn.style.display = 'none';
     }
   </script>
 
