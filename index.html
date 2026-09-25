@@ -3,85 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy Valentine's Day! ❤️</title>
+  <title>Be My Valentine? ❤️</title>
   <style>
-    /* Valentine Palette & Variables */
     :root {
       --bg-color: #fff0f3;
       --card-bg: #ffffff;
       --text-color: #4a1525;
       --primary-color: #ff4d6d;
       --secondary-color: #c9184a;
-      --accent-color: #ffb3c1;
-      --border-color: #ffccd5;
-      --radius: 20px;
-      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      --accent-color: #ffccd5;
+      --radius: 24px;
+      --transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.1);
     }
 
-    /* Reset & Base Styles */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
-      line-height: 1.6;
-      padding: 2rem 1rem;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+      padding: 1rem;
+      overflow: hidden; /* Prevents scrollbars when button flees */
     }
 
-    /* Main Container */
     .container {
-      max-width: 500px;
+      max-width: 450px;
       width: 100%;
       background: var(--card-bg);
-      padding: 2.5rem;
+      padding: 3rem 2rem;
       border-radius: var(--radius);
-      box-shadow: 0 10px 30px rgba(201, 24, 74, 0.1);
+      box-shadow: 0 15px 35px rgba(201, 24, 74, 0.1);
       text-align: center;
-      border: 2px solid var(--border-color);
+      border: 2px solid var(--accent-color);
+      position: relative;
     }
 
-    /* Floating Heart Animation */
     .heart-icon {
-      font-size: 4rem;
-      display: inline-block;
-      animation: float 2.5s ease-in-out infinite;
+      font-size: 4.5rem;
       margin-bottom: 1rem;
+      display: inline-block;
+      animation: pulse 1.5s infinite;
     }
 
-    @keyframes float {
-      0% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-10px) scale(1.05); }
-      100% { transform: translateY(0px) scale(1); }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
 
     h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
+      font-size: 2rem;
       color: var(--secondary-color);
-      letter-spacing: -0.03em;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.3;
+      min-height: 80px; /* Keeps layout stable when text changes */
     }
 
-    p.message {
-      font-size: 1.1rem;
-      color: var(--text-color);
-      opacity: 0.9;
-      margin-bottom: 2rem;
-    }
-
-    /* Interactive Buttons Layout */
     .button-group {
       display: flex;
-      gap: 1rem;
+      gap: 1.5rem;
       justify-content: center;
       align-items: center;
-      position: relative;
-      min-height: 60px;
+      margin-top: 2rem;
+      min-height: 100px;
     }
 
     .btn {
@@ -92,82 +79,120 @@
       border: none;
       cursor: pointer;
       transition: var(--transition);
-      outline: none;
     }
 
     .btn-yes {
       background-color: var(--primary-color);
       color: white;
       box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+      z-index: 10;
     }
 
-    .btn-yes:hover {
-      background-color: var(--secondary-color);
-      transform: scale(1.05);
-    }
-
-    /* Runaway "No" button style */
     .btn-no {
-      background-color: var(--accent-color);
-      color: var(--secondary-color);
-      position: relative;
+      background-color: #f8f9fa;
+      color: #6c757d;
+      border: 1px solid #dee2e6;
+      position: absolute; /* Allows running completely free */
+      z-index: 5;
     }
 
-    /* Success State View (Hidden initially) */
     .success-view {
       display: none;
-    }
-
-    .success-view h2 {
-      color: var(--secondary-color);
-      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Interactive Questionnaire Container -->
+  <div class="container" id="main-card">
+    <!-- Main Quiz Panel -->
     <div id="quiz-view">
-      <div class="heart-icon">❤️</div>
-      <h1>Will you be my Valentine?</h1>
-      <p class="message">Every moment with you is my absolute favourite.</p>
+      <div class="heart-icon" id="emoji-state">🥺</div>
+      <h1 id="question-text">Will you please be my Valentine?</h1>
       
       <div class="button-group">
-        <button class="btn btn-yes" onclick="celebrate()">Yes!</button>
-        <!-- The elusive "No" button -->
-        <button class="btn btn-no" id="no-btn" onmouseover="runAway()" onclick="runAway()">No</button>
+        <button class="btn btn-yes" id="yes-btn" onclick="celebrate()">Yes</button>
+        <!-- The runaway pleading button -->
+        <button class="btn btn-no" id="no-btn" onmouseover="fleeAndBeg()" onclick="fleeAndBeg()">No</button>
       </div>
     </div>
 
     <!-- Celebration Screen -->
     <div id="success-view" class="success-view">
-      <div class="heart-icon">🎉💝✨</div>
-      <h1>Yay! Best Decision Ever!</h1>
-      <h2>I knew you'd say yes! 🥰</h2>
-      <p style="margin-top: 1rem;">Prepare yourself for the best Valentine's Day ever.</p>
+      <div class="heart-icon">🥰🎉💖</div>
+      <h1 style="color: var(--secondary-color); min-height: auto;">Yay! Best Decision Ever!</h1>
+      <p style="font-size: 1.2rem; font-weight: 500;">I knew you couldn't escape my love! 😉</p>
     </div>
   </div>
 
   <script>
-    // Makes the "No" button jump away whenever they try to hover over or click it
-    function runAway() {
-      const btn = document.getElementById('no-btn');
-      
-      // Calculate random, clean coordinates within a safe screen range
-      const randomX = Math.floor(Math.random() * 160) - 80; 
-      const randomY = Math.floor(Math.random() * 120) - 60;
-      
-      btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+    let clickCount = 0;
+    let yesScale = 1;
+
+    const beggingPhrases = [
+      "Wait, don't press that! 😭",
+      "Are you absolutely sure? 😢",
+      "Plese think about it... 🙏",
+      "Pretty please?? ✨",
+      "I'll buy you all the snacks! 🥺",
+      "You're breaking my heart 💔",
+      "Look, I'm literally begging you! 🧎‍♂️",
+      "Stop running away from love! 😂",
+      "Pleaseeeee? 💕",
+      "Just hit the big shiny Yes button!"
+    ];
+
+    // Set initial position of the No button inside the layout safely
+    window.onload = function() {
+      resetNoButtonPosition();
     }
 
-    // Handles transitioning to the success state
+    function resetNoButtonPosition() {
+      const noBtn = document.getElementById('no-btn');
+      noBtn.style.left = "calc(50% + 40px)";
+      noBtn.style.top = "calc(100% - 110px)";
+    }
+
+    function fleeAndBeg() {
+      clickCount++;
+      
+      const noBtn = document.getElementById('no-btn');
+      const yesBtn = document.getElementById('yes-btn');
+      const emojiState = document.getElementById('emoji-state');
+      const questionText = document.getElementById('question-text');
+
+      // 1. Teleport the button safely away inside the viewport
+      const padding = 50;
+      const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+      const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+      
+      const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+      
+      // Move button entirely out of container flow into screen coordinates
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = randomX + 'px';
+      noBtn.style.top = randomY + 'px';
+
+      // 2. Change the text to a pleading line
+      const phraseIndex = (clickCount - 1) % beggingPhrases.length;
+      questionText.innerText = beggingPhrases[phraseIndex];
+
+      // 3. Dynamic emoji reactions based on attempts
+      if (clickCount === 3) emojiState.innerText = "😭";
+      if (clickCount === 6) emojiState.innerText = "🧎‍♂️💥";
+
+      // 4. Feed the scale of the Yes button so it dominates the screen
+      yesScale += 0.25;
+      yesBtn.style.transform = `scale(${yesScale})`;
+    }
+
     function celebrate() {
       document.getElementById('quiz-view').style.display = 'none';
       document.getElementById('success-view').style.display = 'block';
-      
-      // Add a simple burst background color flash for visual reward
       document.body.style.backgroundColor = '#ffdde2';
+      
+      // Hide the runaway button permanently on success
+      document.getElementById('no-btn').style.display = 'none';
     }
   </script>
 
