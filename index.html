@@ -13,7 +13,7 @@
       --secondary-color: #c9184a;
       --accent-color: #ffccd5;
       --radius: 24px;
-      --transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      --transition: all 0.15s ease-out;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,7 +26,7 @@
       align-items: center;
       justify-content: center;
       padding: 1rem;
-      overflow: hidden; /* Prevents scrollbars when button flees */
+      overflow: hidden;
     }
 
     .container {
@@ -55,11 +55,10 @@
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       color: var(--secondary-color);
       margin-bottom: 1.5rem;
       line-height: 1.3;
-      min-height: 80px; /* Keeps layout stable when text changes */
     }
 
     .button-group {
@@ -68,7 +67,7 @@
       justify-content: center;
       align-items: center;
       margin-top: 2rem;
-      min-height: 100px;
+      min-height: 120px;
     }
 
     .btn {
@@ -92,8 +91,9 @@
       background-color: #f8f9fa;
       color: #6c757d;
       border: 1px solid #dee2e6;
-      position: absolute; /* Allows running completely free */
-      z-index: 5;
+      position: absolute;
+      z-index: 999; /* Ensure it stays above everything while moving */
+      white-space: nowrap; /* Prevents text from breaking awkwardly */
     }
 
     .success-view {
@@ -103,11 +103,11 @@
 </head>
 <body>
 
-  <div class="container" id="main-card">
+  <div class="container">
     <!-- Main Quiz Panel -->
     <div id="quiz-view">
       <div class="heart-icon" id="emoji-state">🥺</div>
-      <h1 id="question-text">Will you please be my Valentine?</h1>
+      <h1 id="question-text">Will you be my Valentine?</h1>
       
       <div class="button-group">
         <button class="btn btn-yes" id="yes-btn" onclick="celebrate()">Yes</button>
@@ -119,8 +119,8 @@
     <!-- Celebration Screen -->
     <div id="success-view" class="success-view">
       <div class="heart-icon">🥰🎉💖</div>
-      <h1 style="color: var(--secondary-color); min-height: auto;">Yay! Best Decision Ever!</h1>
-      <p style="font-size: 1.2rem; font-weight: 500;">I knew you couldn't escape my love! 😉</p>
+      <h1 style="color: var(--secondary-color);">Yay! Best Decision Ever!</h1>
+      <p style="font-size: 1.2rem; font-weight: 500; margin-top: 1rem;">I knew you couldn't escape my love! 😉</p>
     </div>
   </div>
 
@@ -128,28 +128,29 @@
     let clickCount = 0;
     let yesScale = 1;
 
+    // The text that will appear directly ON the escaping No button
     const beggingPhrases = [
-      "Wait, don't press that! 😭",
-      "Are you absolutely sure? 😢",
+      "No",
+      "Wait, don't! 😭",
+      "Are you sure? 😢",
       "Plese think about it... 🙏",
       "Pretty please?? ✨",
-      "I'll buy you all the snacks! 🥺",
+      "I'll buy you snacks! 🥺",
       "You're breaking my heart 💔",
-      "Look, I'm literally begging you! 🧎‍♂️",
-      "Stop running away from love! 😂",
+      "Don't click me! 😂",
       "Pleaseeeee? 💕",
-      "Just hit the big shiny Yes button!"
+      "Click the YES button! 👇"
     ];
 
-    // Set initial position of the No button inside the layout safely
+    // Set initial position cleanly relative to the container grid layout
     window.onload = function() {
       resetNoButtonPosition();
     }
 
     function resetNoButtonPosition() {
       const noBtn = document.getElementById('no-btn');
-      noBtn.style.left = "calc(50% + 40px)";
-      noBtn.style.top = "calc(100% - 110px)";
+      noBtn.style.left = "calc(50% + 30px)";
+      noBtn.style.top = "calc(100% - 130px)";
     }
 
     function fleeAndBeg() {
@@ -160,29 +161,33 @@
       const emojiState = document.getElementById('emoji-state');
       const questionText = document.getElementById('question-text');
 
-      // 1. Teleport the button safely away inside the viewport
-      const padding = 50;
+      // 1. Force text updates directly on the button instantly
+      const phraseIndex = clickCount % beggingPhrases.length;
+      noBtn.innerText = beggingPhrases[phraseIndex];
+
+      // 2. Change main card elements to emphasize the begging
+      if (clickCount === 2) {
+        emojiState.innerText = "😭";
+        questionText.innerText = "Wait, look what you're doing!";
+      } else if (clickCount === 5) {
+        emojiState.innerText = "🧎‍♂️💥";
+        questionText.innerText = "Please stop avoiding me!";
+      }
+
+      // 3. Teleport the button safely anywhere inside the browser window
+      const padding = 60;
       const maxX = window.innerWidth - noBtn.offsetWidth - padding;
       const maxY = window.innerHeight - noBtn.offsetHeight - padding;
       
       const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
       const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
       
-      // Move button entirely out of container flow into screen coordinates
       noBtn.style.position = 'fixed';
       noBtn.style.left = randomX + 'px';
       noBtn.style.top = randomY + 'px';
 
-      // 2. Change the text to a pleading line
-      const phraseIndex = (clickCount - 1) % beggingPhrases.length;
-      questionText.innerText = beggingPhrases[phraseIndex];
-
-      // 3. Dynamic emoji reactions based on attempts
-      if (clickCount === 3) emojiState.innerText = "😭";
-      if (clickCount === 6) emojiState.innerText = "🧎‍♂️💥";
-
-      // 4. Feed the scale of the Yes button so it dominates the screen
-      yesScale += 0.25;
+      // 4. Scale up the "Yes" button so it becomes impossible to miss
+      yesScale += 0.3;
       yesBtn.style.transform = `scale(${yesScale})`;
     }
 
