@@ -16,6 +16,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-color);
@@ -24,25 +25,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      padding: 1.5rem;
       overflow: hidden;
+      position: relative;
     }
 
     .container {
-      max-width: 450px;
+      max-width: 400px;
       width: 100%;
       background: var(--card-bg);
-      padding: 3rem 2rem;
+      padding: 3.5rem 2rem;
       border-radius: var(--radius);
       box-shadow: 0 15px 35px rgba(201, 24, 74, 0.1);
       text-align: center;
       border: 2px solid var(--accent-color);
-      position: relative;
+      z-index: 2;
     }
 
     .heart-icon {
       font-size: 4.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       display: inline-block;
       animation: pulse 1.5s infinite;
     }
@@ -56,8 +58,14 @@
     h1 {
       font-size: 2.2rem;
       color: var(--secondary-color);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       line-height: 1.3;
+    }
+
+    p.sub-text {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
     }
 
     .button-group {
@@ -65,18 +73,17 @@
       gap: 1.5rem;
       justify-content: center;
       align-items: center;
-      margin-top: 2rem;
-      min-height: 120px;
+      min-height: 80px;
+      position: relative;
     }
 
     .btn {
-      padding: 0.85rem 2rem;
+      padding: 0.85rem 2.2rem;
       border-radius: 50px;
       font-size: 1.1rem;
       font-weight: 700;
       border: none;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .btn-yes {
@@ -84,16 +91,17 @@
       color: white;
       box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
       z-index: 10;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .btn-no {
       background-color: #f8f9fa;
       color: #6c757d;
       border: 1px solid #dee2e6;
-      position: absolute;
-      z-index: 999;
+      position: fixed; 
+      z-index: 9999;
       white-space: nowrap;
-      transition: top 0.2s ease, left 0.2s ease;
+      transition: top 0.15s ease-out, left 0.15s ease-out;
     }
 
     .success-view {
@@ -105,8 +113,9 @@
 
   <div class="container">
     <div id="quiz-view">
-      <div class="heart-icon" id="emoji-state">🥺</div>
+      <div class="heart-icon" id="emoji-state">❤️</div>
       <h1 id="question-text">Will you be my Valentine?</h1>
+      <p class="sub-text" id="sub-message">Every moment with you is my absolute favourite.</p>
       
       <div class="button-group">
         <button class="btn btn-yes" id="yes-btn" onclick="celebrate()">Yes</button>
@@ -124,7 +133,7 @@
   <script>
     let clickCount = 0;
     let yesScale = 1;
-    let isMoving = false; // Prevents the code from firing double triggers on touchscreens
+    let locationDebounce = false;
 
     const beggingPhrases = [
       "No",
@@ -143,57 +152,67 @@
     const yesBtn = document.getElementById('yes-btn');
     const emojiState = document.getElementById('emoji-state');
     const questionText = document.getElementById('question-text');
+    const subMessage = document.getElementById('sub-message');
 
-    // Set stable initial relative positions
-    window.onload = function() {
-      noBtn.style.left = "calc(50% + 30px)";
-      noBtn.style.top = "calc(100% - 130px)";
+    function positionNoButtonInitially() {
+      const yesRect = yesBtn.getBoundingClientRect();
+      noBtn.style.left = (yesRect.right + 20) + 'px';
+      noBtn.style.top = yesRect.top + 'px';
     }
 
-    function fleeAndBeg(e) {
-      // Stop double events from mobile taps dead in their tracks
-      if (isMoving) return;
-      isMoving = true;
-      setTimeout(() => { isMoving = false; }, 200);
+    window.onload = positionNoButtonInitially;
+    window.onresize = positionNoButtonInitially;
 
+    function fleeAndBeg(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      
       clickCount++;
 
-      // 1. Instantly swap the phrase on the button text array
+      // 1. Force the innerText update down to the DOM layer explicitly before repositioning
       const phraseIndex = clickCount % beggingPhrases.length;
       noBtn.innerText = beggingPhrases[phraseIndex];
 
-      // 2. Modify heading text based on how persistent they are
-      if (clickCount >= 2 && clickCount < 5) {
+      // 2. Adjust core heading prompts to make the card plea dynamic
+      if (clickCount === 2) {
         emojiState.innerText = "😭";
         questionText.innerText = "Wait, look what you're doing!";
-      } else if (clickCount >= 5) {
+        subMessage.innerText = "Don't run away from me!";
+      } else if (clickCount === 5) {
         emojiState.innerText = "🧎‍♂️💥";
         questionText.innerText = "Please stop avoiding me!";
+        subMessage.innerText = "I'm literally on my knees here.";
       }
 
-      // 3. Teleport the button safely to absolute window layout bounds
-      const padding = 70;
-      const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-      const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+      // 3. Teleport layout handler with touch safety thresholds built-in
+      if (locationDebounce) return;
+      locationDebounce = true;
+      setTimeout(() => { locationDebounce = false; }, 80);
+
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
       
-      const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
-      const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
-      
-      noBtn.style.position = 'fixed';
+      const padding = 50;
+      const maxRandomX = screenWidth - noBtn.offsetWidth - (padding * 2);
+      const maxRandomY = screenHeight - noBtn.offsetHeight - (padding * 2);
+
+      const randomX = Math.max(padding, Math.floor(Math.random() * maxRandomX));
+      const randomY = Math.max(padding, Math.floor(Math.random() * maxRandomY));
+
       noBtn.style.left = randomX + 'px';
       noBtn.style.top = randomY + 'px';
 
-      // 4. Boost the size of the "Yes" button
+      // 4. Update relative scaling values on target confirmation button
       yesScale += 0.35;
       yesBtn.style.transform = `scale(${yesScale})`;
     }
 
-    // Attach listeners separately so they never double-fire
+    // Explicit cross-platform system execution attachment layers
+    noBtn.addEventListener('touchstart', fleeAndBeg, { passive: false });
     noBtn.addEventListener('mouseover', fleeAndBeg);
-    noBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      fleeAndBeg(e);
-    });
+    noBtn.addEventListener('click', fleeAndBeg);
 
     function celebrate() {
       document.getElementById('quiz-view').style.display = 'none';
