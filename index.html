@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Be My Valentine? ❤️</title>
+    <title>A Special Message For You ❤️</title>
     <style>
+        :root {
+            --primary: #ff4d6d;
+            --primary-hover: #ff758f;
+            --bg-gradient: linear-gradient(135deg, #ffe5ec, #ffb3c6);
+            --envelope-bg: #ff758f;
+            --envelope-inside: #ff85a1;
+            --envelope-flap: #ff4d6d;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,102 +25,194 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #ffe5ec, #ffb3c6);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            font-family: 'Georgia', serif;
             overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* Envelope Wrapper */
+        .valentines-wrapper {
+            position: relative;
+            width: 380px;
+            height: 280px;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        .valentines-wrapper.open {
+            cursor: default;
+        }
+
+        /* The Envelope Base Container */
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: var(--envelope-bg);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        /* The Flap that folds down */
+        .envelope::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 190px solid transparent;
+            border-right: 190px solid transparent;
+            border-top: 150px solid var(--envelope-flap);
+            transform-origin: top;
+            transition: transform 0.4s ease 0.2s;
+            z-index: 4;
+        }
+
+        /* When opened, flap flips upwards */
+        .valentines-wrapper.open .envelope::before {
+            transform: rotateX(180deg);
+            z-index: 1;
+            transition: transform 0.4s ease, z-index 0.1s ease 0.2s;
+        }
+
+        /* The inside side-pockets of envelope */
+        .envelope::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 190px solid var(--envelope-inside);
+            border-right: 190px solid var(--envelope-inside);
+            border-top: 140px solid transparent;
+            border-radius: 0 0 10px 10px;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* The Letter Card inside */
+        .letter {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            width: 340px;
+            height: 240px;
+            background: #fffdf9;
+            border-radius: 8px;
+            padding: 25px 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.4s;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
             text-align: center;
         }
 
-        .container {
-            background: rgba(255, 255, 255, 0.85);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(225, 50, 100, 0.2);
-            backdrop-filter: blur(10px);
-            max-width: 450px;
-            width: 90%;
-            transition: all 0.5s ease;
-            position: relative;
+        /* Pull the letter out when open class is applied */
+        .valentines-wrapper.open .letter {
+            transform: translateY(-160px);
+            height: 300px;
+            z-index: 5;
         }
 
-        h1 {
+        .letter h1 {
             color: #d90429;
-            font-size: 2.2rem;
-            margin-bottom: 20px;
+            font-size: 1.6rem;
+            line-height: 1.3;
         }
 
-        .gif-container {
+        .letter p {
+            color: #4a4a4a;
+            font-size: 1.05rem;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        /* Action Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
             width: 100%;
-            height: 200px;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .gif-container img {
-            max-height: 100%;
-            border-radius: 10px;
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
             position: relative;
-            min-height: 50px;
+            margin-top: 10px;
+            height: 45px;
         }
 
         .btn {
-            padding: 12px 35px;
-            font-size: 1.2rem;
+            padding: 10px 28px;
+            font-size: 1rem;
             font-weight: bold;
+            font-family: 'Segoe UI', sans-serif;
             border: none;
-            border-radius: 50px;
+            border-radius: 25px;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background 0.2s, transform 0.1s;
         }
 
-        #yesBtn {
-            background-color: #4caf50;
+        .btn-yes {
+            background-color: #2a9d8f;
             color: white;
         }
 
-        #yesBtn:hover {
-            background-color: #43a047;
-            transform: scale(1.1);
+        .btn-yes:hover {
+            background-color: #21867a;
+            transform: scale(1.05);
         }
 
-        #noBtn {
+        .btn-no {
             background-color: #e63946;
             color: white;
             position: absolute;
-            white-space: nowrap;
+            transition: left 0.2s ease, top 0.2s ease;
         }
 
-        .hidden {
-            display: none !important;
+        /* Heart Icon on Front of Envelope */
+        .envelope-heart {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: #d90429;
+            z-index: 5;
+            transition: opacity 0.3s ease 0.2s, transform 0.3s ease;
+            animation: pulse 1.5s infinite;
         }
 
-        /* Floating hearts animation */
-        .heart {
-            position: fixed;
-            font-size: 1.5rem;
-            color: #ff4d6d;
+        .valentines-wrapper.open .envelope-heart {
+            opacity: 0;
+            transform: translate(-50%, -100%) scale(0);
             pointer-events: none;
-            animation: float Up 4s linear forwards;
-            z-index: 10;
         }
 
-        @keyframes floatUp {
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.15); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Floating particles setup */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+            animation: floatAway 3s linear forwards;
+        }
+
+        @keyframes floatAway {
             0% {
-                transform: translateY(100vh) scale(0);
+                transform: translate(0, 0) scale(1) rotate(0deg);
                 opacity: 1;
             }
             100% {
-                transform: translateY(-10vh) scale(1.3);
+                transform: translate(var(--x), var(--y)) scale(0.5) rotate(360deg);
                 opacity: 0;
             }
         }
@@ -119,96 +220,55 @@
 </head>
 <body>
 
-    <div class="container" id="mainContainer">
-        <!-- Question Page -->
-        <div id="questionSection">
-            <h1 id="questionText">Will you be my Valentine? 🌹</h1>
-            <div class="gif-container">
-                <!-- Cute asking gif -->
-                <img id="statusGif" src="https://giphy.com" alt="Cute Cat Requesting">
-            </div>
-            <div class="buttons">
-                <button class="btn" id="yesBtn">Yes!</button>
-                <button class="btn" id="noBtn">No</button>
-            </div>
-        </div>
-
-        <!-- Success Page -->
-        <div id="successSection" class="hidden">
-            <h1>Yay! I knew you'd say yes! 🥰❤️</h1>
-            <div class="gif-container">
-                <!-- Happy celebration gif -->
-                <img src="https://giphy.com" alt="Happy Dancing Cats">
+    <div class="valentines-wrapper" id="envelopeWrapper">
+        <div class="envelope-heart">❤️</div>
+        <div class="envelope">
+            <div class="letter" id="letterCard">
+                <div id="interactiveContent">
+                    <h1 id="headline">My heart beats faster when you are around... 🥰</h1>
+                    <p id="subtext">Will you do me the absolute honor of being my Valentine?</p>
+                    <div class="button-group" id="btnGroup">
+                        <button class="btn btn-yes" id="yesBtn">Yes!</button>
+                        <button class="btn btn-no" id="noBtn">No</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const noBtn = document.getElementById('noBtn');
+        const wrapper = document.getElementById('envelopeWrapper');
         const yesBtn = document.getElementById('yesBtn');
-        const questionSection = document.getElementById('questionSection');
-        const successSection = document.getElementById('successSection');
-        const questionText = document.getElementById('questionText');
-        const statusGif = document.getElementById('statusGif');
+        const noBtn = document.getElementById('noBtn');
+        const btnGroup = document.getElementById('btnGroup');
+        const headline = document.getElementById('headline');
+        const subtext = document.getElementById('subtext');
 
-        let noClickCount = 0;
-        const fallbackPhrases = [
-            "Are you sure? 🥺",
-            "Think again! 💔",
-            "Please? 🎀",
-            "Don't do this to me... 😭",
-            "Surely you misclicked! 👀"
+        let rejectionCount = 0;
+        const guiltPhrases = [
+            "Are you completely sure? 🥺",
+            "Think about it again! 💔",
+            "But I bought chocolates! 🍫",
+            "Pretty please? 🎀",
+            "Error: Wrong choice detected! 👀"
         ];
 
-        // 1. Make the "No" button move away on hover or click
-        function moveNoButton() {
-            const container = document.getElementById('mainContainer');
-            const containerRect = container.getBoundingClientRect();
-            const btnRect = noBtn.getBoundingClientRect();
-
-            // Calculate safe boundaries inside the card container
-            const maxX = containerRect.width - btnRect.width - 40;
-            const maxY = containerRect.height - btnRect.height - 40;
-
-            // Generate random positions
-            const randomX = Math.floor(Math.random() * maxX) - (containerRect.width / 2 - btnRect.width);
-            const randomY = Math.floor(Math.random() * maxY) - (containerRect.height / 2 - btnRect.height);
-
-            noBtn.style.left = `${randomX}px`;
-            noBtn.style.top = `${randomY}px`;
-
-            // Change text dynamically to be more persuasive
-            if (noClickCount < fallbackPhrases.length) {
-                questionText.innerText = fallbackPhrases[noClickCount];
-                noClickCount++;
+        // 1. Click envelope to open it
+        wrapper.addEventListener('click', function(e) {
+            // Prevent opening toggle if interactive elements inside the letter are clicked
+            if (e.target.closest('#interactiveContent')) return;
+            
+            if (!wrapper.classList.contains('open')) {
+                wrapper.classList.add('open');
             }
-        }
-
-        noBtn.addEventListener('mouseover', moveNoButton);
-        noBtn.addEventListener('click', moveNoButton);
-
-        // 2. Trigger the celebration on clicking "Yes"
-        yesBtn.addEventListener('click', () => {
-            questionSection.classList.add('hidden');
-            successSection.classList.remove('hidden');
-            startHeartRain();
         });
 
-        // 3. Create a decorative falling heart effect on success
-        function startHeartRain() {
-            setInterval(() => {
-                const heart = document.createElement('div');
-                heart.classList.add('heart');
-                heart.innerText = '❤️';
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = Math.random() * 2 + 3 + 's';
-                document.body.appendChild(heart);
+        // 2. Playful dodging logic for the "No" button
+        function dodgeNoButton() {
+            const groupRect = btnGroup.getBoundingClientRect();
+            const noRect = noBtn.getBoundingClientRect();
 
-                setTimeout(() => {
-                    heart.remove();
-                }, 5000);
-            }, 300);
-        }
-    </script>
-</body>
-</html>
+            // Establish limits keeping the button inside the visible layout of the letter card
+            const maxX = groupRect.width - noRect.width;
+            const maxY = 120;
+        
