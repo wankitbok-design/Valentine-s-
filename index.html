@@ -1,175 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Character</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f3f5;
-      font-family: sans-serif;
-      overflow: hidden;
-    }
-
-    .container {
-      text-align: center;
-      position: relative;
-      height: 400px;
-      width: 100vw;
-    }
-
-    .character-stage {
-      position: absolute;
-      left: 50%;
-      top: 100px;
-      transform: translateX(-50%);
-      transition: all 0.5s ease;
-    }
-
-    /* Size constraints for your uploaded images */
-    .character-img {
-      width: 100px;
-      height: 100px;
-      object-fit: contain;
-    }
-
-    /* --- ANIMATION SPEED CONTROLS --- */
-    
-    /* Default: Floating speed (Change 2s to make it faster/slower) */
-    .state-sad-float {
-      animation: floatUpDown 2s ease-in-out infinite;
-    }
-
-    /* Yes: Running speed (Change 4s to make it faster/slower) */
-    .state-running {
-      animation: runAround 4s infinite linear;
-    }
-
-    /* No: Sitting speed */
-    .state-crying-sit {
-      animation: sitDown 0.5s forwards;
-    }
-
-    @keyframes floatUpDown {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    @keyframes sitDown {
-      to { transform: translateY(40px) scaleY(0.85); }
-    }
-
-    @keyframes runAround {
-      0% { left: 50%; transform: translateX(-50%) scaleX(1); }
-      25% { left: 80%; transform: translateX(-50%) scaleX(1); }
-      26% { transform: translateX(-50%) scaleX(-1); }
-      75% { left: 20%; transform: translateX(-50%) scaleX(-1); }
-      76% { transform: translateX(-50%) scaleX(1); }
-      100% { left: 50%; transform: translateX(-50%) scaleX(1); }
-    }
-
-    /* Tear particles */
-    .tears {
-      display: none;
-      position: absolute;
-      top: 40px;
-      width: 100%;
-    }
-    .state-crying-sit .tears { display: block; }
-    .tear {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background-color: #3498db;
-      border-radius: 50%;
-      animation: tearDrop 1s infinite linear;
-    }
-    .tear.left { left: 15px; }
-    .tear.right { right: 75px; }
-
-    @keyframes tearDrop {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(40px) scale(0.5); opacity: 0; }
-    }
-
-    /* Bouquet container */
-    .bouquet-img {
-      width: 50px;
-      height: 50px;
-      position: absolute;
-      right: -40px;
-      top: 20px;
-      opacity: 0;
-      transform: scale(0);
-      transition: all 0.3s ease;
-    }
-    .state-running .bouquet-img {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .buttons {
-      margin-top: 280px;
-      z-index: 10;
-      position: relative;
-    }
-
-    button {
-      padding: 12px 24px;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      margin: 0 10px;
-    }
-
-    .btn-yes { background-color: #2ecc71; color: white; }
-    .btn-no { background-color: #e74c3c; color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? ❤️</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="container">
-    <div id="characterStage" class="character-stage state-sad-float">
-      <!-- Target Image Element -->
-      <img id="charImage" class="character-img" src="sad-avatar.png" alt="Character">
-      
-      <div class="tears">
-        <div class="tear left"></div>
-        <div class="tear right"></div>
-      </div>
-      
-      <!-- Bouquet Image -->
-      <img class="bouquet-img" src="flowers.png" alt="Bouquet">
+    <div class="container" id="mainContainer">
+        <!-- Question Page -->
+        <div id="questionSection">
+            <h1 id="questionText">Will you be my Valentine? 🌹</h1>
+            <div class="gif-container">
+                <!-- Points directly to the file you uploaded to GitHub -->
+                <img id="statusGif" src="cat-ask.gif" alt="Cute Requesting Cat">
+            </div>
+            <div class="buttons">
+                <button class="btn" id="yesBtn">Yes!</button>
+                <button class="btn" id="noBtn">No</button>
+            </div>
+        </div>
+
+        <!-- Success Page -->
+        <div id="successSection" class="hidden">
+            <h1>Yay! I knew you'd say yes! 🥰❤️</h1>
+            <div class="gif-container">
+                <!-- Points directly to the file you uploaded to GitHub -->
+                <img src="cat-happy.gif" alt="Happy Dancing Cats">
+            </div>
+        </div>
     </div>
 
-    <div class="buttons">
-      <button class="btn-yes" onclick="handleYes()">Yes</button>
-      <button class="btn-no" onclick="handleNo()">No</button>
-    </div>
-  </div>
-
-  <script>
-    const stage = document.getElementById('characterStage');
-    const img = document.getElementById('charImage');
-
-    function handleYes() {
-      stage.className = 'character-stage state-running';
-      img.src = 'happy-avatar.png'; // Swaps to happy image file
-    }
-
-    function handleNo() {
-      stage.className = 'character-stage state-crying-sit';
-      img.src = 'crying-avatar.png'; // Swaps to crying image file
-    }
-  </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
